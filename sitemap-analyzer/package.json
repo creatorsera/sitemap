@@ -1,0 +1,14 @@
+{
+  "name": "sitemap-analyzer",
+  "version": "1.0.0",
+  "description": "Tool to analyze sitemap URLs and count pages/posts",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0",
+    "express": "^4.19.2"
+  }
+}
