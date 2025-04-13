@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sitemap Analyzer</h1>
+        <div class="input-section">
+            <textarea id="sitemapLinks" rows="5" placeholder="Enter sitemap URLs (one per line, e.g., https://example.com/sitemap.xml)"></textarea>
+            <button onclick="analyzeSitemaps()">Analyze Sitemaps</button>
+        </div>
+        <div id="loader" class="loader"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function analyzeSitemaps() {
+            const textarea = document.getElementById('sitemapLinks');
+            const resultsDiv = document.getElementById('results');
+            const loader = document.getElementById('loader');
+            const sitemapUrls = textarea.value.trim().split('\n').filter(url => url.trim() !== '');
+
+            if (sitemapUrls.length === 0) {
+                resultsDiv.innerHTML = '<div class="error">Please enter at least one sitemap URL.</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ urls: sitemapUrls })
+                });
+                const results = await response.json();
+
+                results.forEach(result => {
+                    if (result.error) {
+                        resultsDiv.innerHTML += `<div class="error">Error processing ${result.sitemap}: ${result.error}</div>`;
+                    } else {
+                        resultsDiv.innerHTML += `
+                            <div class="result-item">
+                                <h3>Sitemap: ${result.sitemap}</h3>
+                                <p>Number of Pages: ${result.pages}</p>
+                                <p>Number of Posts: ${result.posts}</p>
+                                <p>Total (Pages + Posts): ${result.total}</p>
+                            </div>
+                        `;
+                    }
+                });
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="error">Server error: ${error.message}</div>`;
+            }
+
+            loader.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
